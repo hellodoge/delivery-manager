@@ -1,0 +1,22 @@
+port: 8080
+timeout: 10s
+
+db:
+  username: "postgres"
+  host: "localhost"
+  port: 5436
+  dbname: "postgres"
+  sslmode: "disable"
+
+jwt:
+  expires: 10m
+  checkHash: true
+
+refresh-tokens:
+  expires: 24h
+
+redis:
+  addr: "localhost"
+  port: 6379
+  db:
+    refresh-tokens: 1

@@ -1,0 +1,56 @@
+package repository
+
+import (
+	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/jmoiron/sqlx"
+)
+
+const (
+	postgresCreateUser = "CreateUser.sql"
+	postgresGetUser = "GetUser.sql"
+	postgresGetUserByID = "GetUserByID.sql"
+)
+
+type AuthPostgres struct {
+	db *sqlx.DB
+}
+
+func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
+	return &AuthPostgres{
+		db:db,
+	}
+}
+
+func (r *AuthPostgres) CreateUser(user deliveryManager.User) (int, error) {
+	query, err := getQuery(postgresQueriesFolder, postgresCreateUser)
+	if err != nil {
+		return -1, err
+	}
+	row := r.db.QueryRow(query, user.Name, user.Username, user.PasswordHash, user.PasswordSalt)
+	var id int
+	if err = row.Scan(&id); err != nil {
+		return -1, err
+	}
+
+	return id, nil
+}
+
+func (r *AuthPostgres) GetUser(username string) (deliveryManager.User, error) {
+	query, err := getQuery(postgresQueriesFolder, postgresGetUser)
+	if err != nil {
+		return deliveryManager.User{}, err
+	}
+	var user deliveryManager.User
+	err = r.db.Get(&user, query, username)
+	return user, err
+}
+
+func (r *AuthPostgres) GetUserByID(id int) (deliveryManager.User, error) {
+	query, err := getQuery(postgresQueriesFolder, postgresGetUserByID)
+	if err != nil {
+		return deliveryManager.User{}, err
+	}
+	var user deliveryManager.User
+	err = r.db.Get(&user, query, id)
+	return user, err
+}
