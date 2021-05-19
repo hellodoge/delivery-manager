@@ -10,7 +10,8 @@ import (
 )
 
 const (
-	TimesToTry=10
+	TimesToTry         = 10
+	RefreshTokenLength = 16
 )
 
 type RefreshTokensRedis struct {
@@ -36,7 +37,7 @@ func (c *RefreshTokensRedis) NewRefreshToken(user *RefreshTokenSavedFields) (str
 		return "", err
 	}
 	for i := 0; i < TimesToTry; i++ {
-		token, err = auth.GenerateRefreshToken(c.config.TokenBytesLength)
+		token, err = auth.GenerateRefreshToken(RefreshTokenLength)
 		if err != nil {
 			return "", err
 		}
