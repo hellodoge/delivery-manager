@@ -47,13 +47,19 @@ func (h *Handler) signIn(ctx *gin.Context) {
 		return
 	}
 
-	token, err := h.services.GenerateToken(input.Username, input.Password)
+	refreshToken, err := h.services.GenerateRefreshToken(input.Username, input.Password)
+	if err != nil {
+		newErrorResponse(ctx, err)
+		return
+	}
+	token, err := h.services.GenerateToken(refreshToken)
 	if err != nil {
 		newErrorResponse(ctx, err)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"token": token,
+		"refresh": refreshToken,
+		"token":   token,
 	})
 }

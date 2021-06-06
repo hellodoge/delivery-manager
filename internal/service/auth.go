@@ -71,28 +71,15 @@ type TokenClaims struct {
 	UserHashPart string `json:"user_hash"`
 }
 
-func (s *AuthService) GenerateToken(username, password string) (string, error) {
+func (s *AuthService) GenerateToken(refreshToken string) (string, error) {
 
-	user, err := s.repo.GetUser(username)
+	saved, err := s.cache.GetSavedFields(refreshToken)
 	if err != nil {
+		return "", err
+	} else if saved == nil {
 		return "", response.ErrorResponse{
 			Internal:   err,
-			Message:    "User not found",
-			StatusCode: http.StatusUnauthorized,
-		}
-	}
-
-	salt, err2 := hex.DecodeString(user.PasswordSalt)
-	if err2 != nil {
-		return "", err
-	}
-
-	hashed := pbkdf2.Key([]byte(password), salt, hashIterations, pwHashBytes, sha256.New)
-
-	if user.PasswordHash != hex.EncodeToString(hashed) {
-		return "", response.ErrorResponse{
-			Internal:   fmt.Errorf("user %s failed login", user.Username),
-			Message:    "Invalid password",
+			Message:    "Refresh token not found",
 			StatusCode: http.StatusUnauthorized,
 		}
 	}
@@ -102,8 +89,8 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 			ExpiresAt: time.Now().Add(s.config.TokenLifetime).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		UserId:       user.Id,
-		UserHashPart: user.PasswordHash[:claimsHashPartLen],
+		UserId:       saved.UserID,
+		UserHashPart: saved.UserHashPart,
 	})
 
 	return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
