@@ -109,6 +109,38 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 	return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
 }
 
+func (s *AuthService) GenerateRefreshToken(username, password string) (string, error) {
+	user, err := s.repo.GetUser(username)
+	if err != nil {
+		return "", response.ErrorResponse{
+			Internal:   err,
+			Message:    "User not found",
+			StatusCode: http.StatusUnauthorized,
+		}
+	}
+
+	salt, err := hex.DecodeString(user.PasswordSalt)
+	if err != nil {
+		return "", err
+	}
+
+	hashed := pbkdf2.Key([]byte(password), salt, hashIterations, pwHashBytes, sha256.New)
+
+	if user.PasswordHash != hex.EncodeToString(hashed) {
+		return "", response.ErrorResponse{
+			Internal:   fmt.Errorf("user %s failed login", user.Username),
+			Message:    "Invalid password",
+			StatusCode: http.StatusUnauthorized,
+		}
+	}
+
+	token, err := s.cache.NewRefreshToken(&cache.RefreshTokenSavedFields{
+		UserID:       user.Id,
+		UserHashPart: user.PasswordHash[:claimsHashPartLen],
+	})
+	return token, err
+}
+
 func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &TokenClaims{},
 		func(token *jwt.Token) (interface{}, error) { return []byte(os.Getenv("SIGNING_KEY")), nil })
