@@ -1,0 +1,55 @@
+version: '2.2'
+
+services:
+  delivery-manager:
+    build: ./
+    command: ./delivery-manager
+    ports:
+      - 8080:8080
+
+    depends_on:
+      delivery-manager-db:
+        condition: service_healthy
+      delivery-manager-cache:
+        condition: service_healthy
+
+    env_file:
+      - .env
+
+  delivery-manager-db:
+    image:
+      postgres:13.3
+    ports:
+      - 5436:5432
+    restart: always
+
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    env_file:
+      - .db.env
+
+  delivery-manager-cache:
+    image:
+      bitnami/redis:6.2
+    ports:
+      - 6380:6379
+    restart: always
+
+    volumes:
+      - ./data/redis:/bitnami/redis/data
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+    env_file:
+      - .cache.env

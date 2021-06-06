@@ -3,8 +3,8 @@ timeout: 10s
 
 db:
   username: "postgres"
-  host: "localhost"
-  port: 5436
+  host: "delivery-manager-db"
+  port: 5432
   dbname: "postgres"
   sslmode: "disable"
 
@@ -16,7 +16,7 @@ refresh-tokens:
   expires: 24h
 
 redis:
-  addr: "localhost"
+  addr: "delivery-manager-cache"
   port: 6379
   db:
     refresh-tokens: 1
