@@ -63,3 +63,29 @@ func (h *Handler) signIn(ctx *gin.Context) {
 		"token":   token,
 	})
 }
+
+type refreshInput struct {
+	RefreshToken string `json:"refresh"`
+}
+
+func (h *Handler) refresh(ctx *gin.Context) {
+	var input refreshInput
+	if err := ctx.BindJSON(&input); err != nil {
+		newErrorResponse(ctx, response.ErrorResponse{
+			Internal:   err,
+			Message:    err.Error(),
+			StatusCode: http.StatusBadRequest,
+		})
+		return
+	}
+
+	token, err := h.services.GenerateToken(input.RefreshToken)
+	if err != nil {
+		newErrorResponse(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, map[string]interface{}{
+		"token": token,
+	})
+}
