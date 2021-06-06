@@ -54,6 +54,6 @@ func (h *Handler) signIn(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"cache": token,
+		"token": token,
 	})
 }
