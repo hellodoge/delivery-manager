@@ -1,13 +1,13 @@
 package repository
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
 )
 
 const (
-	postgresCreateUser = "CreateUser.sql"
-	postgresGetUser = "GetUser.sql"
+	postgresCreateUser  = "CreateUser.sql"
+	postgresGetUser     = "GetUser.sql"
 	postgresGetUserByID = "GetUserByID.sql"
 )
 
@@ -17,11 +17,11 @@ type AuthPostgres struct {
 
 func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 	return &AuthPostgres{
-		db:db,
+		db: db,
 	}
 }
 
-func (r *AuthPostgres) CreateUser(user deliveryManager.User) (int, error) {
+func (r *AuthPostgres) CreateUser(user dm.User) (int, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresCreateUser)
 	if err != nil {
 		return -1, err
@@ -35,22 +35,22 @@ func (r *AuthPostgres) CreateUser(user deliveryManager.User) (int, error) {
 	return id, nil
 }
 
-func (r *AuthPostgres) GetUser(username string) (deliveryManager.User, error) {
+func (r *AuthPostgres) GetUser(username string) (dm.User, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresGetUser)
 	if err != nil {
-		return deliveryManager.User{}, err
+		return dm.User{}, err
 	}
-	var user deliveryManager.User
+	var user dm.User
 	err = r.db.Get(&user, query, username)
 	return user, err
 }
 
-func (r *AuthPostgres) GetUserByID(id int) (deliveryManager.User, error) {
+func (r *AuthPostgres) GetUserByID(id int) (dm.User, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresGetUserByID)
 	if err != nil {
-		return deliveryManager.User{}, err
+		return dm.User{}, err
 	}
-	var user deliveryManager.User
+	var user dm.User
 	err = r.db.Get(&user, query, id)
 	return user, err
 }

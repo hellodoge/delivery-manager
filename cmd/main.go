@@ -1,7 +1,7 @@
 package main
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/cache"
 	"github.com/hellodoge/delivery-manager/internal/handler"
 	"github.com/hellodoge/delivery-manager/internal/repository"
@@ -41,9 +41,9 @@ func main() {
 	}
 
 	cacheStorage := cache.NewStorage(redisConnOptions, cache.StorageConfig{
-			RTConfig: cache.RefreshTokensConfig{
-			Expiration:       viper.GetDuration("refresh-tokens.expires"),
-			DB:               viper.GetInt("redis.db.refresh-tokens"),
+		RTConfig: cache.RefreshTokensConfig{
+			Expiration: viper.GetDuration("refresh-tokens.expires"),
+			DB:         viper.GetInt("redis.db.refresh-tokens"),
 		},
 	})
 
@@ -51,13 +51,13 @@ func main() {
 	services := service.NewService(repo, cacheStorage, service.Config{
 		AuthConfig: service.AuthServiceConfig{
 			TokenLifetime: viper.GetDuration("jwt.expires"),
-			CheckHash: viper.GetBool("jwt.check-hash"),
+			CheckHash:     viper.GetBool("jwt.check-hash"),
 		},
 	})
 	handlers := handler.NewHandler(services)
 
-	server := deliveryManager.InitServer(deliveryManager.ServerConfig{
-		Port: uint16(viper.GetInt("port")),
+	server := dm.InitServer(dm.ServerConfig{
+		Port:    uint16(viper.GetInt("port")),
 		Timeout: viper.GetDuration("timeout"),
 	}, handlers.InitRoutes())
 
@@ -67,8 +67,8 @@ func main() {
 }
 
 func initConfig() error {
-	viper.SetDefault("port", deliveryManager.DefaultPort)
-	viper.SetDefault("timeout", deliveryManager.DefaultTimeout)
+	viper.SetDefault("port", dm.DefaultPort)
+	viper.SetDefault("timeout", dm.DefaultTimeout)
 	viper.SetDefault("jwt.expires", service.DefaultTokenLifetime)
 
 	viper.AddConfigPath("configs")

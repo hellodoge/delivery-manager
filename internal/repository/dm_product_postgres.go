@@ -1,14 +1,14 @@
 package repository
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
 )
 
 const (
 	postgresCreateProduct    = "CreateProduct.sql"
 	postgresSearchForProduct = "SearchForProduct.sql"
-	postgresProductExists	 = "ProductExists.sql"
+	postgresProductExists    = "ProductExists.sql"
 )
 
 type DMProductPostgres struct {
@@ -21,7 +21,7 @@ func NewDMProductPostgres(db *sqlx.DB) *DMProductPostgres {
 	}
 }
 
-func (r *DMProductPostgres) Create(product deliveryManager.DMProduct) (int, error) {
+func (r *DMProductPostgres) Create(product dm.Product) (int, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresCreateProduct)
 	if err != nil {
 		return -1, err
@@ -33,13 +33,13 @@ func (r *DMProductPostgres) Create(product deliveryManager.DMProduct) (int, erro
 	return id, err
 }
 
-func (r *DMProductPostgres) Search(searchQuery deliveryManager.DMProductSearchQuery) ([]deliveryManager.DMProduct, error) {
+func (r *DMProductPostgres) Search(searchQuery dm.ProductSearchQuery) ([]dm.Product, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresSearchForProduct)
 	if err != nil {
 		return nil, err
 	}
 
-	var found []deliveryManager.DMProduct
+	var found []dm.Product
 	err = r.db.Select(&found, query, searchQuery.MatchAllFields, searchQuery.Title,
 		searchQuery.Description, searchQuery.TitleOrDescription)
 

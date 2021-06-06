@@ -1,7 +1,7 @@
 package service
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/repository"
 )
 
@@ -11,12 +11,12 @@ type DMProductService struct {
 
 func NewDMProductService(repo repository.DMProduct) *DMProductService {
 	return &DMProductService{
-		repo:repo,
+		repo: repo,
 	}
 }
 
-func (s *DMProductService) Create(products []deliveryManager.DMProduct) ([]deliveryManager.DMProduct, error) {
-	var output = make([]deliveryManager.DMProduct, 0, len(products))
+func (s *DMProductService) Create(products []dm.Product) ([]dm.Product, error) {
+	var output = make([]dm.Product, 0, len(products))
 	for _, product := range products {
 		id, err := s.repo.Create(product)
 		if err != nil {
@@ -28,7 +28,7 @@ func (s *DMProductService) Create(products []deliveryManager.DMProduct) ([]deliv
 	return output, nil
 }
 
-func (s *DMProductService) Search(query deliveryManager.DMProductSearchQuery) ([]deliveryManager.DMProduct, error) {
+func (s *DMProductService) Search(query dm.ProductSearchQuery) ([]dm.Product, error) {
 	return s.repo.Search(query)
 }
 

@@ -2,17 +2,17 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/pkg/response"
 	"net/http"
 	"strconv"
 )
 
 func (h *Handler) createList(ctx *gin.Context) {
-	var input deliveryManager.DMList
+	var input dm.List
 	if err := ctx.BindJSON(&input); err != nil {
 		newErrorResponse(ctx, response.ErrorResponse{
-			Internal:	err,
+			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
 		})

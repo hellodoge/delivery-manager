@@ -2,13 +2,13 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/pkg/response"
 	"net/http"
 )
 
 func (h *Handler) signUp(ctx *gin.Context) {
-	var input deliveryManager.User
+	var input dm.User
 
 	if err := ctx.BindJSON(&input); err != nil {
 		newErrorResponse(ctx, response.ErrorResponse{
@@ -25,7 +25,7 @@ func (h *Handler) signUp(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, map[string]interface{} {
+	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"id": id,
 	})
 }
@@ -53,7 +53,7 @@ func (h *Handler) signIn(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, map[string]interface{} {
+	ctx.JSON(http.StatusOK, map[string]interface{}{
 		"cache": token,
 	})
 }

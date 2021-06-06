@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/cache"
 	"github.com/hellodoge/delivery-manager/internal/repository"
 	"github.com/hellodoge/delivery-manager/pkg/response"
@@ -38,12 +38,12 @@ type AuthService struct {
 func NewAuthService(repo repository.Authorization, cache cache.RefreshTokens, config AuthServiceConfig) *AuthService {
 	return &AuthService{
 		repo:   repo,
-		cache: cache,
+		cache:  cache,
 		config: config,
 	}
 }
 
-func (s *AuthService) CreateUser(user deliveryManager.User) (int, error) {
+func (s *AuthService) CreateUser(user dm.User) (int, error) {
 
 	salt := make([]byte, pwSaltBytes)
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {

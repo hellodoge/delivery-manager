@@ -1,7 +1,7 @@
 package service
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/repository"
 	"github.com/hellodoge/delivery-manager/pkg/response"
 	"github.com/hellodoge/delivery-manager/pkg/util"
@@ -14,20 +14,20 @@ type DMListService struct {
 
 func NewDMListService(repo repository.DMList) *DMListService {
 	return &DMListService{
-		repo:repo,
+		repo: repo,
 	}
 }
 
-func (s *DMListService) Create(userID int, list deliveryManager.DMList) (deliveryManager.DMList, error) {
+func (s *DMListService) Create(userID int, list dm.List) (dm.List, error) {
 	listId, err := s.repo.Create(userID, list)
 	if err != nil {
-		return deliveryManager.DMList{}, err
+		return dm.List{}, err
 	}
 	list.Id = listId
 	return list, nil
 }
 
-func (s *DMListService) GetUserLists(userID int) ([]deliveryManager.DMList, error) {
+func (s *DMListService) GetUserLists(userID int) ([]dm.List, error) {
 	lists, err := s.repo.GetUserLists(userID)
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (s *DMListService) Delete(userID, listID int) error {
 	return s.repo.Delete(listID)
 }
 
-func (s *DMListService) AddProduct(userID, listID int, index []deliveryManager.DMProductIndex) error {
+func (s *DMListService) AddProduct(userID, listID int, index []dm.ProductIndex) error {
 	if err := s.ErrorIfNotOwner(userID, listID); err != nil {
 		return err
 	}

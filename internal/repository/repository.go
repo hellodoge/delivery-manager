@@ -1,7 +1,7 @@
 package repository
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
 	"io/ioutil"
 	"path/filepath"
@@ -12,27 +12,26 @@ const (
 )
 
 type Authorization interface {
-	CreateUser(user deliveryManager.User) (int, error)
-	GetUser(username string) (deliveryManager.User, error)
-	GetUserByID(id int) (deliveryManager.User, error)
+	CreateUser(user dm.User) (int, error)
+	GetUser(username string) (dm.User, error)
+	GetUserByID(id int) (dm.User, error)
 }
 
 type DMProduct interface {
-	Create(product deliveryManager.DMProduct) (int, error)
-	Search(query deliveryManager.DMProductSearchQuery) ([]deliveryManager.DMProduct, error)
+	Create(product dm.Product) (int, error)
+	Search(query dm.ProductSearchQuery) ([]dm.Product, error)
 	Exists(productID int) (bool, error)
 }
 
 type DMList interface {
-	Create(userId int, list deliveryManager.DMList) (int, error)
-	GetUserLists(userId int) ([]deliveryManager.DMList, error)
+	Create(userId int, list dm.List) (int, error)
+	GetUserLists(userId int) ([]dm.List, error)
 	GetOwners(listId int) ([]int, error)
 	Delete(listId int) error
 	AddProduct(listID, productID, count int) error
 }
 
 type DMDelivery interface {
-
 }
 
 type Repository struct {
@@ -45,18 +44,18 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
-		DMProduct: NewDMProductPostgres(db),
-		DMList: NewDMListPostgres(db),
+		DMProduct:     NewDMProductPostgres(db),
+		DMList:        NewDMListPostgres(db),
 	}
 }
 
 type DatabaseConfig struct {
-	Host string
-	Port uint16
+	Host     string
+	Port     uint16
 	Username string
 	Password string
-	DBName string
-	SSLMode string
+	DBName   string
+	SSLMode  string
 }
 
 func getQuery(folder, filename string) (string, error) {

@@ -1,7 +1,7 @@
 package service
 
 import (
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/cache"
 	"github.com/hellodoge/delivery-manager/internal/repository"
 	"time"
@@ -12,26 +12,25 @@ const (
 )
 
 type Authorization interface {
-	CreateUser(user deliveryManager.User) (int, error)
+	CreateUser(user dm.User) (int, error)
 	GenerateToken(username, password string) (string, error)
 	ParseToken(token string) (int, error)
 }
 
 type DMProduct interface {
-	Create(products []deliveryManager.DMProduct) ([]deliveryManager.DMProduct, error)
-	Search(query deliveryManager.DMProductSearchQuery) ([]deliveryManager.DMProduct, error)
+	Create(products []dm.Product) ([]dm.Product, error)
+	Search(query dm.ProductSearchQuery) ([]dm.Product, error)
 	Exists(productID int) (bool, error)
 }
 
 type DMList interface {
-	Create(userID int, list deliveryManager.DMList) (deliveryManager.DMList, error)
-	GetUserLists(userID int) ([]deliveryManager.DMList, error)
+	Create(userID int, list dm.List) (dm.List, error)
+	GetUserLists(userID int) ([]dm.List, error)
 	Delete(userID, listID int) error
-	AddProduct(userID, listID int, index []deliveryManager.DMProductIndex) error
+	AddProduct(userID, listID int, index []dm.ProductIndex) error
 }
 
 type DMDelivery interface {
-
 }
 
 type Service struct {
@@ -53,7 +52,7 @@ type AuthServiceConfig struct {
 func NewService(repo *repository.Repository, cache *cache.Storage, config Config) *Service {
 	return &Service{
 		Authorization: NewAuthService(repo.Authorization, cache.RefreshTokens, config.AuthConfig),
-		DMProduct: NewDMProductService(repo.DMProduct),
-		DMList: NewDMListService(repo.DMList),
+		DMProduct:     NewDMProductService(repo.DMProduct),
+		DMList:        NewDMListService(repo.DMList),
 	}
 }

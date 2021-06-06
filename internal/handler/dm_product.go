@@ -3,16 +3,16 @@ package handler
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/pkg/response"
 	"net/http"
 )
 
 func (h *Handler) createProducts(ctx *gin.Context) {
-	var input []deliveryManager.DMProduct
+	var input []dm.Product
 	if err := ctx.BindJSON(&input); err != nil {
 		newErrorResponse(ctx, response.ErrorResponse{
-			Internal:	err,
+			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
 		})
@@ -26,10 +26,10 @@ func (h *Handler) createProducts(ctx *gin.Context) {
 }
 
 func (h *Handler) searchForProducts(ctx *gin.Context) {
-	var input deliveryManager.DMProductSearchQuery
+	var input dm.ProductSearchQuery
 	if err := ctx.BindJSON(&input); err != nil {
 		newErrorResponse(ctx, response.ErrorResponse{
-			Internal:	err,
+			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
 		})
@@ -52,8 +52,8 @@ func (h *Handler) getProducts(ctx *gin.Context) {
 }
 
 type AddProductsInput struct {
-	ListID int `json:"list_id" binding:"required"`
-	Products []deliveryManager.DMProductIndex `json:"products"`
+	ListID   int               `json:"list_id" binding:"required"`
+	Products []dm.ProductIndex `json:"products"`
 }
 
 func (h *Handler) addProducts(ctx *gin.Context) {
@@ -66,7 +66,7 @@ func (h *Handler) addProducts(ctx *gin.Context) {
 	var input AddProductsInput
 	if err := ctx.BindJSON(&input); err != nil {
 		newErrorResponse(ctx, response.ErrorResponse{
-			Internal:	err,
+			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
 		})

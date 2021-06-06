@@ -1,4 +1,4 @@
-package delivery_manager
+package dm
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	DefaultPort = 8080
+	DefaultPort    = 8080
 	DefaultTimeout = 10 * time.Second
 )
 
@@ -17,16 +17,16 @@ type Server struct {
 }
 
 type ServerConfig struct {
-	Port uint16
+	Port    uint16
 	Timeout time.Duration
 }
 
 func InitServer(config ServerConfig, handler http.Handler) *Server {
 	var s = new(Server)
-	s.httpServer = &http.Server {
-		Addr: fmt.Sprintf(":%d", config.Port),
-		Handler: handler,
-		ReadTimeout: config.Timeout,
+	s.httpServer = &http.Server{
+		Addr:         fmt.Sprintf(":%d", config.Port),
+		Handler:      handler,
+		ReadTimeout:  config.Timeout,
 		WriteTimeout: config.Timeout,
 	}
 	return s

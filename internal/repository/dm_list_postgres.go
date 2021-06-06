@@ -2,7 +2,7 @@ package repository
 
 import (
 	"fmt"
-	deliveryManager "github.com/hellodoge/delivery-manager"
+	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 )
@@ -13,7 +13,7 @@ const (
 	postgresGetUserLists     = "GetUserLists.sql"
 	postgresGetListOwners    = "GetListOwners.sql"
 	postgresDeleteList       = "DeleteList.sql"
-	postgresAddProduct		 = "AddProduct.sql"
+	postgresAddProduct       = "AddProduct.sql"
 )
 
 type DMListPostgres struct {
@@ -26,7 +26,7 @@ func NewDMListPostgres(db *sqlx.DB) *DMListPostgres {
 	}
 }
 
-func (r *DMListPostgres) Create(userId int, list deliveryManager.DMList) (int, error) {
+func (r *DMListPostgres) Create(userId int, list dm.List) (int, error) {
 
 	queryCreateList, err := getQuery(postgresQueriesFolder, postgresCreateList)
 	if err != nil {
@@ -65,13 +65,13 @@ func (r *DMListPostgres) Create(userId int, list deliveryManager.DMList) (int, e
 	return listId, tx.Commit()
 }
 
-func (r *DMListPostgres) GetUserLists(userId int) ([]deliveryManager.DMList, error) {
+func (r *DMListPostgres) GetUserLists(userId int) ([]dm.List, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresGetUserLists)
 	if err != nil {
 		return nil, err
 	}
 
-	var lists []deliveryManager.DMList
+	var lists []dm.List
 	err = r.db.Select(&lists, query, userId)
 
 	return lists, err
@@ -97,7 +97,6 @@ func (r *DMListPostgres) Delete(listId int) error {
 	_, err = r.db.Exec(query, listId)
 	return err
 }
-
 
 func (r *DMListPostgres) AddProduct(listID, productID, count int) error {
 	queryAddProduct, err := getQuery(postgresQueriesFolder, postgresAddProduct)
