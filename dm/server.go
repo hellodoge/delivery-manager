@@ -33,7 +33,12 @@ func InitServer(config ServerConfig, handler http.Handler) *Server {
 }
 
 func (s *Server) Run() error {
-	return s.httpServer.ListenAndServe()
+	err := s.httpServer.ListenAndServe()
+	if err == http.ErrServerClosed {
+		return nil
+	} else {
+		return err
+	}
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {

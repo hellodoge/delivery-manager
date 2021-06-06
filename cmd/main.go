@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/cache"
 	"github.com/hellodoge/delivery-manager/internal/handler"
@@ -10,7 +11,10 @@ import (
 	_ "github.com/lib/pq" // postgres support
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -61,8 +65,25 @@ func main() {
 		Timeout: viper.GetDuration("timeout"),
 	}, handlers.InitRoutes())
 
-	if err := server.Run(); err != nil {
-		logrus.Fatalf("error occurred while running http server: %s", err)
+	var g errgroup.Group
+	g.Go(server.Run)
+
+	var sig = make(chan os.Signal)
+	signal.Notify(sig, syscall.SIGINT, syscall.SIGTERM)
+	<-sig
+
+	logrus.Info("shutting down server")
+
+	if err := server.Shutdown(context.TODO()); err != nil {
+		logrus.Error("error while shutting down server ", err)
+	}
+
+	if err := g.Wait(); err != nil {
+		logrus.Error(err)
+	}
+
+	if err := db.Close(); err != nil {
+		logrus.Error("error while closing connection to database")
 	}
 }
 
