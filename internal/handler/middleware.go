@@ -18,7 +18,7 @@ const (
 func (h *Handler) userIdentity(ctx *gin.Context) {
 	header := ctx.GetHeader(authorizationHeader)
 	if header == "" {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Message:    "Empty Authorization header",
 			StatusCode: http.StatusUnauthorized,
 		})

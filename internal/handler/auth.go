@@ -11,7 +11,7 @@ func (h *Handler) signUp(ctx *gin.Context) {
 	var input dm.User
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -39,7 +39,7 @@ func (h *Handler) signIn(ctx *gin.Context) {
 	var input signInInput
 
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -71,7 +71,7 @@ type refreshInput struct {
 func (h *Handler) refresh(ctx *gin.Context) {
 	var input refreshInput
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,

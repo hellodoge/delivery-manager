@@ -7,9 +7,14 @@ import (
 	"net/http"
 )
 
+type ServiceErrorResponse struct {
+	ErrorType string `json:"error"`
+	Message   string `json:"message"`
+}
+
 func newErrorResponse(c *gin.Context, err error) {
 	switch e := err.(type) {
-	case response.ErrorResponse:
+	case response.ErrorResponseParameters:
 		if e.IsInternal {
 			logrus.Error(e)
 		} else {
@@ -22,9 +27,9 @@ func newErrorResponse(c *gin.Context, err error) {
 		c.AbortWithStatusJSON(status, e.Response())
 	default:
 		logrus.Error(e)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, map[string]interface{}{
-			"error": "Unknown Internal Server Error",
-			"message": "Please, contact API service team",
+		c.AbortWithStatusJSON(http.StatusInternalServerError, ServiceErrorResponse{
+			ErrorType: "Unknown Internal Server Error",
+			Message:   "Please, contact API service team",
 		})
 	}
 }

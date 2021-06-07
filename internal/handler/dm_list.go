@@ -11,7 +11,7 @@ import (
 func (h *Handler) createList(ctx *gin.Context) {
 	var input dm.List
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -59,7 +59,7 @@ func (h *Handler) deleteList(ctx *gin.Context) {
 
 	listId, err := strconv.Atoi(ctx.Param("list_id"))
 	if err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    "Invalid list ID parameter",
 			StatusCode: http.StatusForbidden,

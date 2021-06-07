@@ -61,7 +61,7 @@ func (s *DMListService) ErrorIfNotOwner(userID, listID int) error {
 		return err
 	}
 	if !util.ContainsInt(userID, owners) {
-		return response.ErrorResponse{
+		return response.ErrorResponseParameters{
 			Message:    "You are not owner of requested list",
 			StatusCode: http.StatusForbidden,
 		}

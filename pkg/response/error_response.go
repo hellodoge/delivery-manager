@@ -1,13 +1,13 @@
 package response
 
-type ErrorResponse struct {
-	Internal    error
-	IsInternal  bool
-	Message     string
-	StatusCode  int
+type ErrorResponseParameters struct {
+	Internal   error
+	IsInternal bool
+	Message    string
+	StatusCode int
 }
 
-func (e ErrorResponse) Error() string {
+func (e ErrorResponseParameters) Error() string {
 	var message string
 	if e.Message != "" {
 		message += e.Message
@@ -21,12 +21,16 @@ func (e ErrorResponse) Error() string {
 	return message
 }
 
-func (e *ErrorResponse) Response() map[string]interface{} {
+type ErrorResponse struct {
+	Message string `json:"error"`
+}
+
+func (e *ErrorResponseParameters) Response() interface{} {
 	var message = "Internal server error"
 	if e.Message != "" {
 		message = e.Message
 	}
-	return map[string]interface{}{
-		"error": message,
+	return ErrorResponse{
+		Message: message,
 	}
 }

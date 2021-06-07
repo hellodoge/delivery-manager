@@ -11,7 +11,7 @@ import (
 func (h *Handler) createProducts(ctx *gin.Context) {
 	var input []dm.Product
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -28,7 +28,7 @@ func (h *Handler) createProducts(ctx *gin.Context) {
 func (h *Handler) searchForProducts(ctx *gin.Context) {
 	var input dm.ProductSearchQuery
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -37,7 +37,7 @@ func (h *Handler) searchForProducts(ctx *gin.Context) {
 	}
 	result, err := h.services.DMProduct.Search(input)
 	if err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			IsInternal: true,
 		})
@@ -65,7 +65,7 @@ func (h *Handler) addProducts(ctx *gin.Context) {
 
 	var input AddProductsInput
 	if err := ctx.BindJSON(&input); err != nil {
-		newErrorResponse(ctx, response.ErrorResponse{
+		newErrorResponse(ctx, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    err.Error(),
 			StatusCode: http.StatusBadRequest,
@@ -80,7 +80,7 @@ func (h *Handler) addProducts(ctx *gin.Context) {
 			return
 		}
 		if !exist {
-			newErrorResponse(ctx, response.ErrorResponse{
+			newErrorResponse(ctx, response.ErrorResponseParameters{
 				Message:    fmt.Sprintf("Product %d does not exist", product.Id),
 				StatusCode: http.StatusBadRequest,
 			})

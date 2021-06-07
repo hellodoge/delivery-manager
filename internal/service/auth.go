@@ -54,7 +54,7 @@ func (s *AuthService) CreateUser(user dm.User) (int, error) {
 	if err != nil {
 		return -1, err
 	} else if !matched {
-		return -1, response.ErrorResponse{
+		return -1, response.ErrorResponseParameters{
 			Message:    "Username must start with a letter and consist of alphanumeric characters/underscores",
 			StatusCode: 0,
 		}
@@ -71,7 +71,7 @@ func (s *AuthService) CreateUser(user dm.User) (int, error) {
 
 	id, err := s.repo.CreateUser(user)
 	if err == repository.ErrUserExists {
-		return -1, response.ErrorResponse{
+		return -1, response.ErrorResponseParameters{
 			Message:    "User already exists",
 			StatusCode: http.StatusUnauthorized,
 		}
@@ -93,7 +93,7 @@ func (s *AuthService) GenerateToken(refreshToken string) (string, error) {
 	if err != nil {
 		return "", err
 	} else if saved == nil {
-		return "", response.ErrorResponse{
+		return "", response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    "Refresh token not found",
 			StatusCode: http.StatusUnauthorized,
@@ -115,7 +115,7 @@ func (s *AuthService) GenerateToken(refreshToken string) (string, error) {
 func (s *AuthService) GenerateRefreshToken(username, password string) (string, error) {
 	user, err := s.repo.GetUser(username)
 	if err != nil {
-		return "", response.ErrorResponse{
+		return "", response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    "User not found",
 			StatusCode: http.StatusUnauthorized,
@@ -130,7 +130,7 @@ func (s *AuthService) GenerateRefreshToken(username, password string) (string, e
 	hashed := pbkdf2.Key([]byte(password), salt, hashIterations, pwHashBytes, sha256.New)
 
 	if user.PasswordHash != hex.EncodeToString(hashed) {
-		return "", response.ErrorResponse{
+		return "", response.ErrorResponseParameters{
 			Internal:   fmt.Errorf("user %s failed login", user.Username),
 			Message:    "Invalid password",
 			StatusCode: http.StatusUnauthorized,
@@ -149,7 +149,7 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 		func(token *jwt.Token) (interface{}, error) { return []byte(os.Getenv("SIGNING_KEY")), nil })
 
 	if err != nil {
-		return -1, response.ErrorResponse{
+		return -1, response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    "Invalid Credentials",
 			StatusCode: http.StatusUnauthorized,
@@ -158,7 +158,7 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 
 	claims, ok := token.Claims.(*TokenClaims)
 	if !ok {
-		return -1, response.ErrorResponse{
+		return -1, response.ErrorResponseParameters{
 			Internal:   fmt.Errorf("credentials of invalid type: %T", token.Claims),
 			Message:    "Unexpected Credentials Type",
 			StatusCode: http.StatusUnauthorized,
@@ -168,7 +168,7 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	if s.config.CheckHash {
 		user, err := s.repo.GetUserByID(claims.UserId)
 		if err != nil {
-			return -1, response.ErrorResponse{
+			return -1, response.ErrorResponseParameters{
 				Internal:   err,
 				IsInternal: true,
 				Message:    "User not found",
@@ -177,7 +177,7 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 		}
 
 		if claims.UserHashPart != user.PasswordHash[:claimsHashPartLen] {
-			return -1, response.ErrorResponse{
+			return -1, response.ErrorResponseParameters{
 				Internal:   fmt.Errorf("jwt cache sign is valid, but user %s hash don't match", user.Username),
 				IsInternal: true,
 				Message:    "User not found",
