@@ -55,12 +55,13 @@ func (s *AuthService) CreateUser(user dm.User) (int, error) {
 	user.PasswordHash = hex.EncodeToString(hashed)
 
 	id, err := s.repo.CreateUser(user)
-	if err != nil {
+	if err == repository.ErrUserExists {
 		return -1, response.ErrorResponse{
-			Internal:   err,
 			Message:    "User already exists",
 			StatusCode: http.StatusUnauthorized,
 		}
+	} else if err != nil {
+		return -1, err
 	}
 	return id, nil
 }

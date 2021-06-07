@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 const (
@@ -29,6 +30,12 @@ func (r *AuthPostgres) CreateUser(user dm.User) (int, error) {
 	row := r.db.QueryRow(query, user.Name, user.Username, user.PasswordHash, user.PasswordSalt)
 	var id int
 	if err = row.Scan(&id); err != nil {
+		if err, ok := err.(*pq.Error); ok {
+			switch err.Code.Name() {
+			case "unique_violation":
+				return -1, ErrUserExists
+			}
+		}
 		return -1, err
 	}
 
