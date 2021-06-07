@@ -2,7 +2,10 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	_ "github.com/hellodoge/delivery-manager/docs"
 	"github.com/hellodoge/delivery-manager/internal/service"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -55,6 +58,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			products.POST("/search", h.searchForProducts)
 		}
 	}
+
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return router
 }

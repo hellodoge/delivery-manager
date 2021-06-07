@@ -1,0 +1,69 @@
+basePath: /
+definitions:
+  dm.User:
+    properties:
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - name
+    - password
+    - username
+    type: object
+  handler.ServiceErrorResponse:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+    type: object
+  response.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  title: Delivery Manager API
+paths:
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      description: create account
+      operationId: create-account
+      parameters:
+      - description: account info
+        in: body
+        name: account-info
+        required: true
+        schema:
+          $ref: '#/definitions/dm.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: integer
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ServiceErrorResponse'
+      summary: Sign Up
+      tags:
+      - auth
+securityDefinitions:
+  TokenAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

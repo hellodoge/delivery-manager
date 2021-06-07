@@ -7,6 +7,17 @@ import (
 	"net/http"
 )
 
+// @Summary Sign Up
+// @Tags auth
+// @Description create account
+// @ID create-account
+// @Accept json
+// @Produce json
+// @Param account-info body dm.User true "account info"
+// @Success 200 {integer} integer 1
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} ServiceErrorResponse
+// @Router /auth/sign-up [post]
 func (h *Handler) signUp(ctx *gin.Context) {
 	var input dm.User
 

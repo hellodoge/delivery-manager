@@ -17,6 +17,15 @@ import (
 	"syscall"
 )
 
+// @title Delivery Manager API
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey TokenAuth
+// @in header
+// @name Authorization
+
 func main() {
 	if err := initConfig(); err != nil {
 		logrus.Fatalf("error initializing configs: %s", err)
