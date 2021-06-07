@@ -14,6 +14,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
+	"strings"
 	"time"
 )
 
@@ -27,6 +29,8 @@ const (
 
 	// jwt
 	claimsHashPartLen = 16
+
+	usernameRegex = "^[a-z]+[a-z1-9_]*$"
 )
 
 type AuthService struct {
@@ -44,6 +48,17 @@ func NewAuthService(repo repository.Authorization, cache cache.RefreshTokens, co
 }
 
 func (s *AuthService) CreateUser(user dm.User) (int, error) {
+
+	user.Username = strings.ToLower(user.Username)
+	matched, err := regexp.MatchString(usernameRegex, user.Username)
+	if err != nil {
+		return -1, err
+	} else if !matched {
+		return -1, response.ErrorResponse{
+			Message:    "Username must start with a letter and consist of alphanumeric characters/underscores",
+			StatusCode: 0,
+		}
+	}
 
 	salt := make([]byte, pwSaltBytes)
 	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
