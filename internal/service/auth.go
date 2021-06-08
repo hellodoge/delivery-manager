@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -30,7 +31,9 @@ const (
 	// jwt
 	claimsHashPartLen = 16
 
-	usernameRegex = "^[a-z]+[a-z1-9_]*$"
+	usernameRegex     = "^[a-z]+[a-z1-9_]*$"
+	usernameMinLength = 5
+	passwordMinLength = 4
 )
 
 type AuthService struct {
@@ -48,8 +51,20 @@ func NewAuthService(repo repository.Authorization, cache cache.RefreshTokens, co
 }
 
 func (s *AuthService) CreateUser(user dm.User) (int, error) {
-
 	user.Username = strings.ToLower(user.Username)
+
+	if len(user.Username) < usernameMinLength {
+		return -1, response.ErrorResponseParameters{
+			Message:    "Username must be at least " + strconv.Itoa(usernameMinLength) + " characters long",
+			StatusCode: http.StatusBadRequest,
+		}
+	} else if len(user.Password) < passwordMinLength {
+		return -1, response.ErrorResponseParameters{
+			Message:    "Password must be at least " + strconv.Itoa(passwordMinLength) + " characters long",
+			StatusCode: http.StatusBadRequest,
+		}
+	}
+
 	matched, err := regexp.MatchString(usernameRegex, user.Username)
 	if err != nil {
 		return -1, err
