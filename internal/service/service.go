@@ -11,6 +11,8 @@ const (
 	DefaultTokenLifetime = 12 * time.Hour
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/mock.go
+
 type Authorization interface {
 	CreateUser(user dm.User) (int, error)
 	GenerateToken(refreshToken string) (string, error)
