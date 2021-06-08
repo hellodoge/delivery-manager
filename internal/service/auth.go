@@ -56,7 +56,7 @@ func (s *AuthService) CreateUser(user dm.User) (int, error) {
 	} else if !matched {
 		return -1, response.ErrorResponseParameters{
 			Message:    "Username must start with a letter and consist of alphanumeric characters/underscores",
-			StatusCode: 0,
+			StatusCode: http.StatusBadRequest,
 		}
 	}
 
