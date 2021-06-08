@@ -25,6 +25,20 @@ func (h *Handler) userIdentity(ctx *gin.Context) {
 		return
 	}
 	header = strings.TrimPrefix(header, "Bearer ")
+	if header == "" {
+		newErrorResponse(ctx, response.ErrorResponseParameters{
+			Message:    "Invalid Bearer token",
+			StatusCode: http.StatusUnauthorized,
+		})
+		return
+	}
+	if strings.ContainsRune(header, ' ') {
+		newErrorResponse(ctx, response.ErrorResponseParameters{
+			Message:    "Empty Bearer token",
+			StatusCode: http.StatusUnauthorized,
+		})
+		return
+	}
 
 	userId, err := h.services.Authorization.ParseToken(header)
 	if err != nil {
