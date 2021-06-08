@@ -11,6 +11,8 @@ const (
 	queriesFolder = "queries"
 )
 
+//go:generate mockgen -source=repository.go -destination=mocks/mock.go
+
 type Authorization interface {
 	CreateUser(user dm.User) (int, error)
 	GetUser(username string) (dm.User, error)
