@@ -48,7 +48,7 @@ func (c *RefreshTokensRedis) NewRefreshToken(user *RefreshTokenSavedFields) (str
 		if set {
 			return token, nil
 		} else {
-			logrus.Warn("Created refresh token collided with existing (%s)", token)
+			logrus.Warnf("Created refresh token collided with existing (%s)", token)
 		}
 	}
 	return "", errors.New("max number of tries reached while creating a token")
