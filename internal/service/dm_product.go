@@ -16,16 +16,14 @@ func NewDMProductService(repo repository.DMProduct) *DMProductService {
 }
 
 func (s *DMProductService) Create(products []dm.Product) ([]dm.Product, error) {
-	var output = make([]dm.Product, 0, len(products))
-	for _, product := range products {
-		id, err := s.repo.Create(product)
-		if err != nil {
-			return nil, err
-		}
-		product.Id = id
-		output = append(output, product)
+	ids, err := s.repo.Create(products)
+	if err != nil {
+		return nil, err
 	}
-	return output, nil
+	for i := range products {
+		products[i].Id = ids[i]
+	}
+	return products, nil
 }
 
 func (s *DMProductService) Search(query dm.ProductSearchQuery) ([]dm.Product, error) {

@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -21,16 +22,28 @@ func NewDMProductPostgres(db *sqlx.DB) *DMProductPostgres {
 	}
 }
 
-func (r *DMProductPostgres) Create(product dm.Product) (int, error) {
+func (r *DMProductPostgres) Create(products []dm.Product) ([]int, error) {
 	query, err := getQuery(postgresQueriesFolder, postgresCreateProduct)
 	if err != nil {
-		return -1, err
+		return nil, err
 	}
-	row := r.db.QueryRow(query, product.Title, product.Description, product.Price)
-
-	var id int
-	err = row.Scan(&id)
-	return id, err
+	tx, err := r.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	var ids = make([]int, len(products))
+	for i, product := range products {
+		row := r.db.QueryRow(query, product.Title, product.Description, product.Price)
+		err = row.Scan(&ids[i])
+		if err != nil {
+			err2 := tx.Rollback()
+			if err2 != nil {
+				logrus.Error(err2)
+			}
+			return nil, err
+		}
+	}
+	return ids, tx.Commit()
 }
 
 func (r *DMProductPostgres) Search(searchQuery dm.ProductSearchQuery) ([]dm.Product, error) {

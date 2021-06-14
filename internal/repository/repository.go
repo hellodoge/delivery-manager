@@ -20,7 +20,7 @@ type Authorization interface {
 }
 
 type DMProduct interface {
-	Create(product dm.Product) (int, error)
+	Create(product []dm.Product) ([]int, error)
 	Search(query dm.ProductSearchQuery) ([]dm.Product, error)
 	Exists(productID int) (bool, error)
 }
