@@ -6,6 +6,7 @@ package mock_repository
 
 import (
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 	dm "github.com/hellodoge/delivery-manager/dm"
@@ -32,6 +33,20 @@ func NewMockAuthorization(ctrl *gomock.Controller) *MockAuthorization {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAuthorization) EXPECT() *MockAuthorizationMockRecorder {
 	return m.recorder
+}
+
+// CreateRefreshToken mocks base method.
+func (m *MockAuthorization) CreateRefreshToken(userID int, token string, expiresAt time.Time, ip string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateRefreshToken", userID, token, expiresAt, ip)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateRefreshToken indicates an expected call of CreateRefreshToken.
+func (mr *MockAuthorizationMockRecorder) CreateRefreshToken(userID, token, expiresAt, ip interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateRefreshToken", reflect.TypeOf((*MockAuthorization)(nil).CreateRefreshToken), userID, token, expiresAt, ip)
 }
 
 // CreateUser mocks base method.
@@ -79,6 +94,21 @@ func (mr *MockAuthorizationMockRecorder) GetUserByID(id interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByID", reflect.TypeOf((*MockAuthorization)(nil).GetUserByID), id)
 }
 
+// GetUserByRefreshToken mocks base method.
+func (m *MockAuthorization) GetUserByRefreshToken(token string) (dm.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByRefreshToken", token)
+	ret0, _ := ret[0].(dm.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByRefreshToken indicates an expected call of GetUserByRefreshToken.
+func (mr *MockAuthorizationMockRecorder) GetUserByRefreshToken(token interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByRefreshToken", reflect.TypeOf((*MockAuthorization)(nil).GetUserByRefreshToken), token)
+}
+
 // MockDMProduct is a mock of DMProduct interface.
 type MockDMProduct struct {
 	ctrl     *gomock.Controller
@@ -103,10 +133,10 @@ func (m *MockDMProduct) EXPECT() *MockDMProductMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockDMProduct) Create(product dm.Product) (int, error) {
+func (m *MockDMProduct) Create(product []dm.Product) ([]int, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", product)
-	ret0, _ := ret[0].(int)
+	ret0, _ := ret[0].([]int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

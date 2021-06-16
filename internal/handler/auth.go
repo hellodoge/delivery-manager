@@ -58,7 +58,7 @@ func (h *Handler) signIn(ctx *gin.Context) {
 		return
 	}
 
-	refreshToken, err := h.services.GenerateRefreshToken(input.Username, input.Password)
+	refreshToken, err := h.services.GenerateRefreshToken(input.Username, input.Password, ctx.ClientIP())
 	if err != nil {
 		newErrorResponse(ctx, err)
 		return

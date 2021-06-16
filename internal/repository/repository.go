@@ -5,6 +5,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"io/ioutil"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -17,6 +18,8 @@ type Authorization interface {
 	CreateUser(user dm.User) (int, error)
 	GetUser(username string) (dm.User, error)
 	GetUserByID(id int) (dm.User, error)
+	CreateRefreshToken(userID int, token string, expiresAt time.Time, ip string) error
+	GetUserByRefreshToken(token string) (dm.User, error)
 }
 
 type DMProduct interface {

@@ -9,6 +9,7 @@ import (
 	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/hellodoge/delivery-manager/internal/cache"
 	"github.com/hellodoge/delivery-manager/internal/repository"
+	"github.com/hellodoge/delivery-manager/pkg/auth"
 	"github.com/hellodoge/delivery-manager/pkg/response"
 	"golang.org/x/crypto/pbkdf2"
 	"io"
@@ -34,6 +35,8 @@ const (
 	usernameRegex     = "^[a-z]+[a-z1-9_]*$"
 	usernameMinLength = 5
 	passwordMinLength = 4
+
+	RefreshTokenLength = 16
 )
 
 type AuthService struct {
@@ -104,15 +107,15 @@ type TokenClaims struct {
 
 func (s *AuthService) GenerateToken(refreshToken string) (string, error) {
 
-	saved, err := s.cache.GetSavedFields(refreshToken)
-	if err != nil {
-		return "", err
-	} else if saved == nil {
+	user, err := s.repo.GetUserByRefreshToken(refreshToken)
+	if err == repository.ErrRefreshTokenNotFound {
 		return "", response.ErrorResponseParameters{
 			Internal:   err,
 			Message:    "Refresh token not found",
 			StatusCode: http.StatusUnauthorized,
 		}
+	} else if err != nil {
+		return "", err
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &TokenClaims{
@@ -120,14 +123,14 @@ func (s *AuthService) GenerateToken(refreshToken string) (string, error) {
 			ExpiresAt: time.Now().Add(s.config.TokenLifetime).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		UserId:       saved.UserID,
-		UserHashPart: saved.UserHashPart,
+		UserId:       user.Id,
+		UserHashPart: user.PasswordHash[:claimsHashPartLen],
 	})
 
 	return token.SignedString([]byte(os.Getenv("SIGNING_KEY")))
 }
 
-func (s *AuthService) GenerateRefreshToken(username, password string) (string, error) {
+func (s *AuthService) GenerateRefreshToken(username, password string, ip string) (string, error) {
 	user, err := s.repo.GetUser(username)
 	if err != nil {
 		return "", response.ErrorResponseParameters{
@@ -152,10 +155,14 @@ func (s *AuthService) GenerateRefreshToken(username, password string) (string, e
 		}
 	}
 
-	token, err := s.cache.NewRefreshToken(&cache.RefreshTokenSavedFields{
-		UserID:       user.Id,
-		UserHashPart: user.PasswordHash[:claimsHashPartLen],
-	})
+	token, err := auth.GenerateRefreshToken(RefreshTokenLength)
+	if err != nil {
+		return "", err
+	}
+
+	var expiresAt = time.Now().Add(s.config.RefreshTokenLifetime)
+
+	err = s.repo.CreateRefreshToken(user.Id, token, expiresAt, ip)
 	return token, err
 }
 

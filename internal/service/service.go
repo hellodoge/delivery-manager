@@ -16,8 +16,8 @@ const (
 type Authorization interface {
 	CreateUser(user dm.User) (int, error)
 	GenerateToken(refreshToken string) (string, error)
-	GenerateRefreshToken(username, password string) (string, error)
 	ParseToken(token string) (int, error)
+	GenerateRefreshToken(username, password string, ip string) (string, error)
 }
 
 type DMProduct interface {
@@ -48,8 +48,9 @@ type Config struct {
 }
 
 type AuthServiceConfig struct {
-	TokenLifetime time.Duration
-	CheckHash     bool
+	TokenLifetime        time.Duration
+	RefreshTokenLifetime time.Duration
+	CheckHash            bool
 }
 
 func NewService(repo *repository.Repository, cache *cache.Storage, config Config) *Service {
