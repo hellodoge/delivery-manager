@@ -17,6 +17,7 @@ const (
 	postgresGetUserByRefreshToken  = "GetUserByRefreshToken.sql"
 	postgresGetUserRefreshTokens   = "GetUserRefreshTokens.sql"
 	postgresInvalidateRefreshToken = "InvalidateRefreshToken.sql"
+	postgresGetActiveRefreshTokens = "GetActiveRefreshTokens.sql"
 )
 
 type AuthPostgres struct {
@@ -127,4 +128,15 @@ func (r *AuthPostgres) InvalidateRefreshTokens(ids []int, userID int) error {
 	}
 
 	return tx.Commit()
+}
+
+func (r *AuthPostgres) GetActiveRefreshTokens(userID int) ([]dm.RefreshTokenInfo, error) {
+	query, err := getQuery(postgresQueriesFolder, postgresGetActiveRefreshTokens)
+	if err != nil {
+		return nil, err
+	}
+
+	var refreshTokens []dm.RefreshTokenInfo
+	err = r.db.Select(&refreshTokens, query, userID)
+	return refreshTokens, err
 }
