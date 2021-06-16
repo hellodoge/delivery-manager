@@ -37,6 +37,8 @@ const (
 	passwordMinLength = 4
 
 	RefreshTokenLength = 16
+
+	DateLayout = "Jan 2 2006"
 )
 
 type AuthService struct {
@@ -209,4 +211,22 @@ func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	}
 
 	return claims.UserId, nil
+}
+
+func (s *AuthService) GetUserRefreshTokens(userID int, issuedAfterString string) ([]dm.RefreshTokenInfo, error) {
+	var issuedAfter time.Time
+	if issuedAfterString == "" {
+		issuedAfter = time.Now().Add(-s.config.RefreshTokenLifetime)
+	} else {
+		var err error
+		issuedAfter, err = time.Parse(DateLayout, issuedAfterString)
+		if err != nil {
+			return nil, response.ErrorResponseParameters{
+				Internal:   err,
+				Message:    "'issued-after' parameter must be like the string `" + DateLayout + "`",
+				StatusCode: http.StatusBadRequest,
+			}
+		}
+	}
+	return s.repo.GetUserRefreshTokens(userID, issuedAfter)
 }
