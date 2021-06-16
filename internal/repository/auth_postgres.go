@@ -5,16 +5,18 @@ import (
 	"github.com/hellodoge/delivery-manager/dm"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 	"time"
 )
 
 const (
-	postgresCreateUser            = "CreateUser.sql"
-	postgresGetUser               = "GetUser.sql"
-	postgresGetUserByID           = "GetUserByID.sql"
-	postgresCreateRefreshToken    = "CreateRefreshToken.sql"
-	postgresGetUserByRefreshToken = "GetUserByRefreshToken.sql"
-	postgresGetUserRefreshTokens  = "GetUserRefreshTokens.sql"
+	postgresCreateUser             = "CreateUser.sql"
+	postgresGetUser                = "GetUser.sql"
+	postgresGetUserByID            = "GetUserByID.sql"
+	postgresCreateRefreshToken     = "CreateRefreshToken.sql"
+	postgresGetUserByRefreshToken  = "GetUserByRefreshToken.sql"
+	postgresGetUserRefreshTokens   = "GetUserRefreshTokens.sql"
+	postgresInvalidateRefreshToken = "InvalidateRefreshToken.sql"
 )
 
 type AuthPostgres struct {
@@ -100,4 +102,29 @@ func (r *AuthPostgres) GetUserRefreshTokens(userID int, issuedAfter time.Time) (
 	var refreshTokens []dm.RefreshTokenInfo
 	err = r.db.Select(&refreshTokens, query, userID, issuedAfter)
 	return refreshTokens, err
+}
+
+func (r *AuthPostgres) InvalidateRefreshTokens(ids []int, userID int) error {
+	query, err := getQuery(postgresQueriesFolder, postgresInvalidateRefreshToken)
+	if err != nil {
+		return err
+	}
+
+	tx, err := r.db.Begin()
+	if err != nil {
+		return err
+	}
+
+	for _, id := range ids {
+		_, err := tx.Exec(query, id, userID)
+		if err != nil {
+			err2 := tx.Rollback()
+			if err2 != nil {
+				logrus.Error(err2)
+			}
+			return err
+		}
+	}
+
+	return tx.Commit()
 }

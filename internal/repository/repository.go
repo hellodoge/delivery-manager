@@ -21,6 +21,7 @@ type Authorization interface {
 	CreateRefreshToken(userID int, token string, expiresAt time.Time, ip string) error
 	GetUserByRefreshToken(token string) (dm.User, error)
 	GetUserRefreshTokens(userID int, issuedAfter time.Time) ([]dm.RefreshTokenInfo, error)
+	InvalidateRefreshTokens(ids []int, userID int) error
 }
 
 type DMProduct interface {
