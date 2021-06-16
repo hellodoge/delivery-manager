@@ -234,3 +234,7 @@ func (s *AuthService) GetUserRefreshTokens(userID int, issuedAfterString string)
 func (s *AuthService) InvalidateRefreshTokens(ids []int, userID int) error {
 	return s.repo.InvalidateRefreshTokens(ids, userID)
 }
+
+func (s *AuthService) GetActiveRefreshTokens(userID int) ([]dm.RefreshTokenInfo, error) {
+	return s.repo.GetActiveRefreshTokens(userID)
+}
