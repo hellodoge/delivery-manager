@@ -14,6 +14,7 @@ const (
 	postgresGetUserByID           = "GetUserByID.sql"
 	postgresCreateRefreshToken    = "CreateRefreshToken.sql"
 	postgresGetUserByRefreshToken = "GetUserByRefreshToken.sql"
+	postgresGetUserRefreshTokens  = "GetUserRefreshTokens.sql"
 )
 
 type AuthPostgres struct {
@@ -88,4 +89,15 @@ func (r *AuthPostgres) GetUserByRefreshToken(token string) (dm.User, error) {
 		return dm.User{}, ErrRefreshTokenNotFound
 	}
 	return user, err
+}
+
+func (r *AuthPostgres) GetUserRefreshTokens(userID int, issuedAfter time.Time) ([]dm.RefreshTokenInfo, error) {
+	query, err := getQuery(postgresQueriesFolder, postgresGetUserRefreshTokens)
+	if err != nil {
+		return nil, err
+	}
+
+	var refreshTokens []dm.RefreshTokenInfo
+	err = r.db.Select(&refreshTokens, query, userID, issuedAfter)
+	return refreshTokens, err
 }
