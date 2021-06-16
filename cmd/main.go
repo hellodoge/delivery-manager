@@ -63,8 +63,9 @@ func main() {
 	repo := repository.NewRepository(db)
 	services := service.NewService(repo, cacheStorage, service.Config{
 		AuthConfig: service.AuthServiceConfig{
-			TokenLifetime: viper.GetDuration("jwt.expires"),
-			CheckHash:     viper.GetBool("jwt.check-hash"),
+			TokenLifetime:        viper.GetDuration("jwt.expires"),
+			RefreshTokenLifetime: viper.GetDuration("refresh-tokens.expires"),
+			CheckHash:            viper.GetBool("jwt.check-hash"),
 		},
 	})
 	handlers := handler.NewHandler(services)
