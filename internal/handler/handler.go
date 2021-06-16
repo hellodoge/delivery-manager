@@ -30,6 +30,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		refreshTokens.POST("/get", h.getRefreshTokens)
 		refreshTokens.PUT("/invalidate", h.invalidateTokens)
+		refreshTokens.GET("/get-active", h.getActiveRefreshTokens)
 	}
 
 	api := router.Group("/api", h.userIdentity)

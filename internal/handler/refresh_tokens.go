@@ -59,3 +59,16 @@ func (h *Handler) invalidateTokens(ctx *gin.Context) {
 	}
 	ctx.Status(http.StatusOK)
 }
+
+func (h *Handler) getActiveRefreshTokens(ctx *gin.Context) {
+	userId, err := getUserId(ctx)
+	if err != nil {
+		newErrorResponse(ctx, err)
+		return
+	}
+	tokens, err := h.services.GetActiveRefreshTokens(userId)
+	if err != nil {
+		newErrorResponse(ctx, err)
+	}
+	ctx.JSON(http.StatusOK, tokens)
+}
