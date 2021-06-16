@@ -19,6 +19,7 @@ type Authorization interface {
 	ParseToken(token string) (int, error)
 	GenerateRefreshToken(username, password string, ip string) (string, error)
 	GetUserRefreshTokens(userID int, issuedAfterString string) ([]dm.RefreshTokenInfo, error)
+	InvalidateRefreshTokens(ids []int, userID int) error
 }
 
 type DMProduct interface {
